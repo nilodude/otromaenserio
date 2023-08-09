@@ -5,12 +5,12 @@ AudioIn in;
 FFT fft;
 
 int cols, rows;
-int bands = 256;
+int bands = 32;
 float w;
 float[] spectrum = new float[bands];
 
 void setup(){
-  size(1920, 1080, P3D);
+  size(displayWidth, displayHeight, P3D);
   background(150);
   file = new SoundFile(this, "song.wav");
   fft= new FFT(this, bands);
@@ -19,14 +19,23 @@ void setup(){
 }
 
 void draw(){
-  background(150);
+  background(0);
   fft.analyze(spectrum);
   stroke(0);
-  for(int i = 0; i < bands; i++){
+  
+  //file.sampleRate() devuelve freq. muestreo, con eso se pueden calcular fBins y pintar con exactitud
+  //lo siguiente es almacenar cada iteracion del spectrum en un arrayDeque y hacer que se desplaze hacia abajo
+  //las muestras antiguas y que se vaya mostrando arriba del todo la nueva muestra (iteracion actual) de spectrum
+  for(int i = 1; i < bands; i++){
     float amp = spectrum[i];
-    float y = amp* height*5;
+    float y =  min(height,amp * height *10);
     
-    line(i*w, height, i*w, height - y );
+    stroke(130, 255, 0);
+    line(i*w + w/2, height, i*w + w/2, height - y );
+    
+    stroke(255,255/(i+1),i);
+    fill(0,0,0,0);
+    rect(i*w,height-y, w, height);
   }
 }
 
