@@ -13,13 +13,15 @@ int bands = 128;
 float w;
 float[] spectrum = new float[bands];
 float[] sum = new float[bands];
-float[] bins = new float[bands];
+float[] logBins = new float[bands];
+float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 final static int vScale = 30; 
 int volume = 100;
 float smoothing = 0.2;
+float maxLogBin = 0;
 
 void setup(){
   size(displayWidth, displayHeight, P3D);
@@ -32,15 +34,32 @@ void setup(){
   fft= new FFT(this, bands);
   fft.input(file);
   w = width / bands;
-  binWidth = file.sampleRate()/bands;
   
-  for(int i=0;i<bands;i++){
-    float temp = (i+1)*binWidth;
-    if(temp < 20000){
-      bins[i]= (float) Math.log10(temp);
-      print(bins[i]+"--");
-     }
-}
+  // generar aqui lo del matlab es un pateo, se genera previamente y se almacena en memoria a modo de LUT 
+  
+  
+  //binWidth = file.sampleRate()/bands;
+  
+  //for(int i=0;i<bands;i++){
+  //  float temp = (i+1)*binWidth;
+  //  if(temp < 20000){
+  //    logBins[i]= (float) Math.log10(temp);
+      
+  //    if(maxLogBin < logBins[i]){
+  //      maxLogBin = logBins[i];
+  //    }
+  //    print(logBins[i]+"--");
+  //  }
+  //}
+  //println();
+  //for(int i=0;i<bands;i++){
+  //  scaledBins[i]= width * (logBins[i]/maxLogBin);
+  //  print(scaledBins[i]+"--");
+  //}
+  //println();
+  //println(scaledBins[127]);
+
+  //println(scaledBins.length);
 }
 
 void draw(){
