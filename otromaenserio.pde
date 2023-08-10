@@ -15,6 +15,7 @@ float[] spectrum = new float[bands];
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 final static int vScale = 30; 
+int volume = 70;
 
 void setup(){
   size(displayWidth, displayHeight, P3D);
@@ -68,8 +69,6 @@ void draw(){
     rect(i*w,height, w, -y);
   }
   
-  
-  
 }
 
 void mouseClicked() {
@@ -103,7 +102,7 @@ void readSongDir(){
  File[] files = new File(songDir).listFiles();
   
   for(File file : files){
-    if(!file.isDirectory()){
+    if(!file.isDirectory() && !file.getName().contains("flac")){
       songs.add(file.getPath()); 
     }
   } 
@@ -111,4 +110,37 @@ void readSongDir(){
 
 String randomSong(){
   return songs.get(parseInt(random(songs.size())));
+}
+
+public void mouseWheel(MouseEvent event) {
+  final int count = event.getCount();
+  volume -= count;
+  if (volume > 100) {
+    volume = 100;
+  }
+  if (volume < 0) {
+    volume = 0;
+  }
+  setVolume();
+}
+
+public void keyPressed(KeyEvent event) {
+ if (event.getKeyCode() == '1') {
+  file.stop();
+    file.removeFromCache();
+    loadSong();
+  }
+}
+
+private void setVolume() {
+  file.amp(volume / 100.0f);
+} 
+  
+private void loadSong() {
+  file = new SoundFile(this, randomSong());
+  file.amp(volume / 100f);
+  fft.input(file);
+  if (!file.isPlaying()) {
+    file.play();
+  }
 }
