@@ -9,13 +9,15 @@ FFT fft;
 String songDir = "D:/MUSICA/LIBRERIAS/tracklists";
 List<String> songs = new ArrayList<>();
 int cols, rows;
-int bands = 256;
+int bands = 128;
 float w;
 float[] spectrum = new float[bands];
+float[] sum = new float[bands];
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 final static int vScale = 30; 
-int volume = 70;
+int volume = 100;
+float smoothing = 0.2;
 
 void setup(){
   size(displayWidth, displayHeight, P3D);
@@ -24,7 +26,7 @@ void setup(){
   readSongDir();
   
   file = new SoundFile(this, randomSong());
-  file.amp(0.7);
+  file.amp(volume/100f);
   fft= new FFT(this, bands);
   fft.input(file);
   w = width / bands;
@@ -51,24 +53,34 @@ void draw(){
   //showMouse();
   showGridHelper();
   
-  //file.sampleRate() devuelve freq. muestreo, con eso se pueden calcular fBins y pintar con exactitud
+  //file.sampleRate() devuelve freq. muestreo, con eso se pueden calcular fBins y pintar con exactitud?
+  
+  // hay que hacer a mano un logspace como el de matlab
+  
   //lo siguiente es almacenar cada iteracion del spectrum en un arrayDeque y hacer que se desplaze hacia abajo
   //las muestras antiguas y que se vaya mostrando arriba del todo la nueva muestra (iteracion actual) de spectrum
   
   stroke(0);
-  for(int i = 1; i < bands; i++){
+  for(int i = 0; i < bands; i++){
     float amp = spectrum[i];
-    float y =  min(height,amp * height *vScale);
+    sum[i] += (amp - sum[i]) * smoothing;
+    float y =  min(height,sum[i] * height *vScale);
     
     stroke(130, 255, 0);
-    line(i*w + w/2, height, i*w + w/2, height - y );
+    //line(i*w + w/2, height, i*w + w/2, height - y );
     
     stroke(255,255/(i+1),i);
     fill(0,0,0,0);
     // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
+    
     rect(i*w,height, w, -y);
   }
   
+}
+
+int logspace(int band){
+ 
+  return 1;
 }
 
 void mouseClicked() {
@@ -109,7 +121,9 @@ void readSongDir(){
 }
 
 String randomSong(){
-  return songs.get(parseInt(random(songs.size())));
+  String song = songs.get(parseInt(random(songs.size())));
+  println(song);
+  return song;
 }
 
 public void mouseWheel(MouseEvent event) {
@@ -130,6 +144,14 @@ public void keyPressed(KeyEvent event) {
     file.removeFromCache();
     loadSong();
   }
+  if(event.getKeyCode() == 38 && smoothing<0.8){
+    smoothing+= 0.030;
+    println(smoothing);
+  }
+  if(event.getKeyCode() == 40 && smoothing>=0.05){
+    smoothing-=0.030;
+    println(smoothing);
+  }
 }
 
 private void setVolume() {
@@ -138,9 +160,12 @@ private void setVolume() {
   
 private void loadSong() {
   file = new SoundFile(this, randomSong());
-  file.amp(volume / 100f);
-  fft.input(file);
-  if (!file.isPlaying()) {
-    file.play();
+  if(file != null){
+    file.amp(volume / 100f);
+    fft.input(file);
+    if (!file.isPlaying()) {
+      file.play();
+    }
   }
+  
 }
