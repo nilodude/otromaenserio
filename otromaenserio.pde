@@ -18,10 +18,13 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-final static int vScale = 30; 
+final static int vScale = 10; 
 int volume = 100;
-float smoothing = 0.2;
+float smoothing = 0.05;
 float maxLogBin = 0;
+float minLogBin = 9999;
+int myWidth = width +500;
+int myHeight = height +200;
 
 void setup(){
   size(displayWidth, displayHeight, P3D);
@@ -38,28 +41,34 @@ void setup(){
   // generar aqui lo del matlab es un pateo, se genera previamente y se almacena en memoria a modo de LUT 
   
   
-  //binWidth = file.sampleRate()/bands;
+  binWidth = file.sampleRate()/bands;
   
-  //for(int i=0;i<bands;i++){
-  //  float temp = (i+1)*binWidth;
-  //  if(temp < 20000){
-  //    logBins[i]= (float) Math.log10(temp);
+  for(int i=0;i<bands;i++){
+    float temp = (i+1)*binWidth;
+    if(temp < 20000){
+      logBins[i]= (float) Math.log10(temp);
       
-  //    if(maxLogBin < logBins[i]){
-  //      maxLogBin = logBins[i];
-  //    }
-  //    print(logBins[i]+"--");
-  //  }
-  //}
-  //println();
-  //for(int i=0;i<bands;i++){
-  //  scaledBins[i]= width * (logBins[i]/maxLogBin);
-  //  print(scaledBins[i]+"--");
-  //}
-  //println();
+      if(maxLogBin < logBins[i]){
+        maxLogBin = logBins[i];
+      }
+      if(minLogBin > logBins[i]){
+        minLogBin = logBins[i];
+      }
+      //print(logBins[i]+"--");
+    }
+  }
+  
+  println();
+  
+  for(int i=0;i<bands;i++){
+    scaledBins[i]= round(map(logBins[i],minLogBin,maxLogBin,0,width));
+    print(scaledBins[i]+"--");
+  }
+  
+  println();
   //println(scaledBins[127]);
 
-  //println(scaledBins.length);
+  println(scaledBins.length);
 }
 
 void draw(){
@@ -103,7 +112,7 @@ void draw(){
     fill(0,0,0,0);
     // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
     
-    rect(i*w,height, w, -y);
+    rect(scaledBins[i],height, w, -y);
     
     
   }
