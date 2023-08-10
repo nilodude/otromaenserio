@@ -18,9 +18,9 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-final static int vScale = 5; 
+final static int vScale = 10; 
 int volume = 100;
-float smoothing = 0.18;
+float smoothing = 0.2;
 float maxLogBin = 0;
 float minLogBin = 9999;
 int myWidth = width +500;
@@ -94,11 +94,11 @@ void draw(){
   //las muestras antiguas y que se vaya mostrando arriba del todo la nueva muestra (iteracion actual) de spectrum
   
   stroke(0);
-  for(int i = 1; i < bands; i++){
+  for(int i = 0; i < bands; i++){
     float amp = spectrum[i];
     sum[i] += (amp - sum[i]) * smoothing;
-    float y =  min(height,sum[i] * height *vScale);
-    
+    //float y =  min(height,sum[i] * height *vScale);
+    float y =10* (float) Math.log(sum[i]/height)*vScale;
     stroke(130, 255, 0);
     //line(i*w + w/2, height, i*w + w/2, height - y );
     
@@ -106,7 +106,7 @@ void draw(){
     fill(0,0,0,0);
     // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
     
-    rect(scaledBins[i],height, w, -y*i/6);
+    rect(scaledBins[i],height, w, -y);
     
     
   }
