@@ -13,6 +13,8 @@ int bands = 128;
 float w;
 float[] spectrum = new float[bands];
 float[] sum = new float[bands];
+float[] bins = new float[bands];
+float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 final static int vScale = 30; 
@@ -30,6 +32,15 @@ void setup(){
   fft= new FFT(this, bands);
   fft.input(file);
   w = width / bands;
+  binWidth = file.sampleRate()/bands;
+  
+  for(int i=0;i<bands;i++){
+    float temp = (i+1)*binWidth;
+    if(temp < 20000){
+      bins[i]= (float) Math.log10(temp);
+      print(bins[i]+"--");
+     }
+}
 }
 
 void draw(){
@@ -74,6 +85,8 @@ void draw(){
     // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
     
     rect(i*w,height, w, -y);
+    
+    
   }
   
 }
