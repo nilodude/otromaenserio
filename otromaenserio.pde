@@ -9,7 +9,7 @@ FFT fft;
 String songDir = "D:/MUSICA/LIBRERIAS/tracklists";
 List<String> songs = new ArrayList<>();
 int cols, rows;
-int bands = 128;
+int bands = 256;
 float w;
 float[] spectrum = new float[bands];
 float[] sum = new float[bands];
@@ -18,9 +18,9 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-final static int vScale = 10; 
+final static int vScale = 5; 
 int volume = 100;
-float smoothing = 0.05;
+float smoothing = 0.18;
 float maxLogBin = 0;
 float minLogBin = 9999;
 int myWidth = width +500;
@@ -37,10 +37,7 @@ void setup(){
   fft= new FFT(this, bands);
   fft.input(file);
   w = width / bands;
-  
-  // generar aqui lo del matlab es un pateo, se genera previamente y se almacena en memoria a modo de LUT 
-  
-  
+    
   binWidth = file.sampleRate()/bands;
   
   for(int i=0;i<bands;i++){
@@ -92,15 +89,12 @@ void draw(){
   //showMouse();
   showGridHelper();
   
-  //file.sampleRate() devuelve freq. muestreo, con eso se pueden calcular fBins y pintar con exactitud?
-  
-  // hay que hacer a mano un logspace como el de matlab
   
   //lo siguiente es almacenar cada iteracion del spectrum en un arrayDeque y hacer que se desplaze hacia abajo
   //las muestras antiguas y que se vaya mostrando arriba del todo la nueva muestra (iteracion actual) de spectrum
   
   stroke(0);
-  for(int i = 0; i < bands; i++){
+  for(int i = 1; i < bands; i++){
     float amp = spectrum[i];
     sum[i] += (amp - sum[i]) * smoothing;
     float y =  min(height,sum[i] * height *vScale);
@@ -112,7 +106,7 @@ void draw(){
     fill(0,0,0,0);
     // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
     
-    rect(scaledBins[i],height, w, -y);
+    rect(scaledBins[i],height, w, -y*i/6);
     
     
   }
