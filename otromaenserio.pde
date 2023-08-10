@@ -6,7 +6,7 @@ AudioIn in;
 FFT fft;
 
 int cols, rows;
-int bands = 32;
+int bands = 16;
 float w;
 float[] spectrum = new float[bands];
 ArrayDeque<float[]> data = new ArrayDeque<>();
@@ -55,7 +55,8 @@ void draw(){
     
     stroke(255,255/(i+1),i);
     fill(0,0,0,0);
-    rect(i*w,height-y, w, height);
+    // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
+    rect(i*w,height, w, -y);
   }
   
   
