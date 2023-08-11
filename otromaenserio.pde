@@ -20,7 +20,7 @@ ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 int vScale = 13;
 int volume = 70;
-float stretch =1;
+float stretch =1.6;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
 
@@ -210,27 +210,13 @@ String randomSong() {
 }
 
 public void mouseWheel(MouseEvent event) {
-  //stretch+=0.05;
   final int count = event.getCount();
   stretch -= 0.05*count;
-  //if (stretch > 20) {
-  //  stretch = 99;
-  //}
+
   if (stretch < 1) {
     stretch = 1;
   }
-  println(stretch);
-  
-  //final int count = event.getCount();
-  //volume -= count;
-  //if (volume > 99) {
-  //  volume = 99;
-  //}
-  //if (volume < 0) {
-  //  volume = 0;
-  //}
-  //println(volume);
-  //setVolume();
+  println("stretch: "+stretch);
 }
 
 public void keyPressed(KeyEvent event) {
@@ -249,11 +235,11 @@ public void keyPressed(KeyEvent event) {
   }
   if (event.getKeyCode() == 84) {
     vScale--;
-    println(vScale);
+    println("vScale: "+vScale);
   }
   if (event.getKeyCode() == 71) {
     vScale++;
-    println(vScale);
+    println("vScale: "+vScale);
   }
   if (event.getKeyCode() == '1') {
     file.stop();
@@ -318,12 +304,12 @@ void drawSpectrogram() {
   for (float[] ele : data) {
     eleNum++;
     for (int i = 0; i < ele.length; i++) {
-      final float red = map(i, 0, ele.length, 255, 0);
-      final float greem = map(i, 0, ele.length, 0, 0);
-      final float blue = map(i, 0, ele.length, 255,0);
+      final float red = 255-3*i;
+      final float greem = 190-8*i;
+      final float blue = 4*i;
 
       push();
-      fill(red, greem, blue, 255-0.07*z);
+      fill(red, greem, blue, 255-0.1*z);
       translate(0, 0, (0.2*eleNum+1)*z);
 
       float amp = ele[i];
