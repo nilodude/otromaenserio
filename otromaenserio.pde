@@ -35,7 +35,8 @@ float maxLogBin = 0;
 float minLogBin = 9999;
 
 float angle = 0;
-float wiggle =0;
+float wiggle1 =0;
+float wiggle2 =0;
 float cameraX=0;
 float cameraY=0;
 float cameraZ=0;
@@ -80,13 +81,14 @@ void draw() {
 void renderCamera(){
  
   
-  wiggle = 200*sin(angle/200);
-  
- //          camera position                                                          camera looking at
- //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
-   camera(cameraX+width/2.0,height/2.+ wiggle - cameraY, 12*mouseY+(height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height, -500, 0, 1, 0);
+  wiggle1 = 150*sin(angle+0.0001*millis());
+    wiggle2 = 200*sin(0.5*angle+0.0001*millis());
+
+ //          camera position                                                                                camera looking at
+ //     eyex,       eyeY,                               eyeZ,                                          centerX,centerY,centerZ,                   upX, upY, upZ
+   camera(wiggle2+cameraX+width/2.0,height/2.+ wiggle1 - cameraY, 12*mouseY+(height/2.0) / tan(PI*30.0 / 180.0),wiggle2+ width/2.0, height, -500, 0, 1, 0);
    
-   angle-=0.1;
+   angle-=0.01;
  
   
    if(presUP){
@@ -281,10 +283,15 @@ private void changeSongFile(){
 }
 
 private void loadSongFile() {
+  try{
+    
   file = new SoundFile(this, randomSong());
   if (file != null) {
     file.amp(volume / 100f);
     fft.input(file);
+  }
+  }catch(Exception e){
+    loadSongFile();  
   }
 }
 
