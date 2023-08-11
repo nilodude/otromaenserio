@@ -42,6 +42,16 @@ float cameraX=0;
 float cameraY=0;
 float cameraZ=0;
 
+boolean presUP = false;
+boolean presDOWN = false;
+boolean presLEFT = false;
+boolean presRIGHT = false;
+
+boolean relUP = false;
+boolean relDOWN = false;
+boolean relLEFT = false;
+boolean relRIGHT = false;
+
 void setup() {
   size(displayWidth, displayHeight, P3D);
   background(150);
@@ -69,7 +79,24 @@ void draw() {
   showEQ();
   
   drawSpectrogram();
+  
+  if(presUP){
+    cameraY+=10;
+  }
+  if(presDOWN){
+    cameraY-=10;
+  }
+  if(presLEFT){
+    cameraX-=30;
+  }
+  if(presRIGHT){
+    cameraX+=30;
+  }
    
+  println("UP:....PRESS= "+presUP+", RELEASE= "+relUP+"     ");
+  println("DOWN:..PRESS= "+presDOWN+", RELEASE= "+relDOWN+"     ");
+  println("LEFT:..PRESS= "+presLEFT+", RELEASE= "+relLEFT+"     ");
+  println("RIGHT:.PRESS= "+presRIGHT+", RELEASE= "+relRIGHT+"     ");
 }
 
 void renderCamera(){
@@ -204,19 +231,16 @@ public void mouseWheel(MouseEvent event) {
 
 public void keyPressed(KeyEvent event) {
   //CAMERA CONTROLS
-  if (event.getKeyCode() == 87) {
-   cameraY+=30;
-  }
-  if (event.getKeyCode() == 83) {
-   cameraY-=30;
-  }
-  if (event.getKeyCode() == 68) {
-   cameraX+=30;
-  }
-  if (event.getKeyCode() == 65) {
-   cameraX-=30;
-  }
   
+  presUP = event.getKeyCode() == 87;
+  presDOWN = event.getKeyCode() == 83;
+  presRIGHT = event.getKeyCode() == 68;
+  presLEFT = event.getKeyCode() == 65;
+  
+  relUP = presUP && !relUP;
+  relDOWN = presDOWN && !relDOWN;
+  relRIGHT = presRIGHT && !relRIGHT;
+  relLEFT = presLEFT && !relLEFT;
   
   if (event.getKeyCode() == '1') {
     file.stop();
@@ -232,6 +256,36 @@ public void keyPressed(KeyEvent event) {
     smoothing-=0.030;
     println(smoothing);
   }
+}
+
+public void keyReleased(KeyEvent event){
+  //if (event.getKeyCode() == 87) {
+  //  relUP = true;
+  //  presUP = false;
+  //}
+  //if (event.getKeyCode() == 83) {
+  //  relDOWN =true;
+  //  presDOWN = false;
+  //}
+  //if (event.getKeyCode() == 68) { 
+  //  relRIGHT = true;
+  //  presRIGHT = false;
+  //}
+  //if (event.getKeyCode() == 65) {
+  //  relLEFT = true;
+  //  presLEFT = false;
+  //}
+  
+  relUP = event.getKeyCode() == 87;
+  relDOWN = event.getKeyCode() == 83;
+  relRIGHT = event.getKeyCode() == 68;
+  relLEFT = event.getKeyCode() == 65;
+  
+  presUP = relUP && !presUP;
+  presDOWN = relDOWN && !presDOWN;
+  presRIGHT = relRIGHT && !presRIGHT;
+  presLEFT = relLEFT && !presLEFT;
+  
 }
 
 private void setVolume() {
