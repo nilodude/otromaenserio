@@ -33,8 +33,6 @@ float smoothing = 0.48;
 
 float maxLogBin = 0;
 float minLogBin = 9999;
-int myWidth = width +500;
-int myHeight = height +200;
 
 float angle = 0;
 float wiggle =0;
@@ -57,13 +55,10 @@ void setup() {
   background(150);
 
   readSongDir();
-
-  file = new SoundFile(this, randomSong());
-  file.amp(volume/100f);
+  
   fft= new FFT(this, bands);
-  fft.input(file);
-  w = width / bands;
-
+  loadSongFile();
+  
   setupDisplay();
 }
 
@@ -83,15 +78,17 @@ void draw() {
 }
 
 void renderCamera(){
-   wiggle = 2000*sin(angle*PI/200);
+ 
+  
+  wiggle = 200*sin(angle/200);
   
  //          camera position                                                          camera looking at
  //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
-   camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 12*mouseY+(height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height, -500, 0, 1, 0);
+   camera(cameraX+width/2.0,height/2.+ wiggle - cameraY, 12*mouseY+(height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height, -500, 0, 1, 0);
    
-   if(angle >= 2*PI){
-     angle+=PI/100;
-   }
+   angle-=0.1;
+ 
+  
    if(presUP){
     cameraY+=10;
   }
@@ -99,10 +96,10 @@ void renderCamera(){
     cameraY-=10;
   }
   if(presLEFT){
-    cameraX-=30;
+    cameraX-=10;
   }
   if(presRIGHT){
-    cameraX+=30;
+    cameraX+=10;
   }
    
   //println("UP:....PRESS= "+presUP+", RELEASE= "+relUP+"     ");
@@ -146,6 +143,7 @@ void drawEQ(){
 }
 
 void setupDisplay() {
+  w = width / bands;
   binWidth = file.sampleRate()/bands;
 
   for (int i=0; i<bands; i++) {
@@ -159,28 +157,25 @@ void setupDisplay() {
       if (minLogBin > logBins[i]) {
         minLogBin = logBins[i];
       }
-      print(logBins[i]+"--");
+      //print(logBins[i]+"--");
     }
   }
 
-  println("\n");
+  //println("\n");
 
   for (int i=0; i<bands; i++) {
     scaledBins[i]= round(map(logBins[i], minLogBin, maxLogBin, 0, width));
-    print(scaledBins[i]+"--");
+    //print(scaledBins[i]+"--");
   }
 
-  println();
-  //println(scaledBins[127]);
-
-  println(scaledBins.length);
+  //println();
+  //println(scaledBins.length);
 }
 
 void mouseClicked() {
   if (!file.isPlaying()) {
     file.play();
   } else {
-    
     file.pause();
   }
 }
@@ -229,6 +224,7 @@ public void mouseWheel(MouseEvent event) {
   if (volume < 0) {
     volume = 0;
   }
+  println(volume);
   setVolume();
 }
 
@@ -320,6 +316,6 @@ void drawSpectrogram(){
       rect(scaledBins[i], yStart, w, -y-height);
       pop();
     }
-    z += 20;
+    z += 8;
   } 
 }
