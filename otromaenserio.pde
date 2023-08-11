@@ -95,7 +95,7 @@ void renderCamera() {
   float posX = cameraX + wiggle2+width/2.0;
   float posY = 3*mouseY + wiggle1  -height/2.0;
   float posZ = 5000- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
-  float lookX = mouseX*stretch+wiggle2+ width/2.0;
+  float lookX = mouseX*stretch+wiggle2;
   float lookY = height-200;
   float lookZ = -500;
   
@@ -210,9 +210,9 @@ String randomSong() {
 }
 
 public void mouseWheel(MouseEvent event) {
-  stretch+=0.2;
+  //stretch+=0.05;
   final int count = event.getCount();
-  stretch -= count;
+  stretch -= 0.05*count;
   //if (stretch > 20) {
   //  stretch = 99;
   //}
@@ -248,11 +248,11 @@ public void keyPressed(KeyEvent event) {
     presLEFT = true;
   }
   if (event.getKeyCode() == 84) {
-    vScale++;
+    vScale--;
     println(vScale);
   }
   if (event.getKeyCode() == 71) {
-    vScale--;
+    vScale++;
     println(vScale);
   }
   if (event.getKeyCode() == '1') {
