@@ -5,7 +5,7 @@ import java.util.*;
 SoundFile file;
 AudioIn in;
 FFT fft;
-
+ 
 String songDir = "D:/MUSICA/LIBRERIAS/tracklists";
 List<String> songs = new ArrayList<>();
 int cols, rows;
@@ -20,14 +20,24 @@ ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 final static int vScale = 8;
 int volume = 100;
+
+/*
+  para valores de "smoothing" mayores que 0.5 hay mas "ruido", y puede venir bien para "tirar encima un trapo" y que tenga mas "sitios de apoyo".
+  el trapo es una malla de vertices 
+  
+  para valores menores que 0.48 (default), y cercanos a 0.1, se parece mas a un EQ, el "terreno es mas planito", hay menos "ruido"
+
+
+*/
 float smoothing = 0.48;
+
 float maxLogBin = 0;
 float minLogBin = 9999;
 int myWidth = width +500;
 int myHeight = height +200;
 
 float angle = 0;
-
+float wiggle =0;
 float cameraX=0;
 float cameraY=0;
 float cameraZ=0;
@@ -48,12 +58,30 @@ void setup() {
 }
 
 void draw() {
-  float wiggle = 20*sin(angle*2+PI/100);
+  background(0);
   
-  //          camera position                                                          camera looking at
-  //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
-  camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 2000+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
-  angle+=PI/100;
+  renderCamera();
+  
+  readFFT();
+  
+  //showMouse();
+  showGridHelper();
+  showEQ();
+  
+  drawSpectrogram();
+   
+}
+
+void renderCamera(){
+   wiggle = 20*sin(angle*2+PI/100);
+  
+ //          camera position                                                          camera looking at
+ //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
+   camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 2000+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
+   angle+=PI/100; 
+}
+
+void readFFT(){
   if (file.isPlaying()) {
     fft.analyze(spectrum);
     final float[] clone = spectrum.clone();
@@ -66,46 +94,6 @@ void draw() {
     data.clear();
   }
 
-  background(0);
-  //showMouse();
-  showGridHelper();
-  //showEQ();
-  
-  
-  //int widthPercent = 90;
-
-  //final float spectrumWidth = width / 100.0f * widthPercent;
-  //float spectrumEleWidth = spectrumWidth / bands;
-  //float xStart = (width - spectrumWidth) / 2;
-  final float yStart = height * 0.95f;
-  
-  int z = 0;
-  float alpha = 255;
-  int eleNum = 0;
-  for (float[] ele : data) {
-    eleNum++;
-    alpha = map(eleNum, 0, data.size(), 255, 0);
-
-    for (int i = 0; i < ele.length; i++) {
-      final float greem = map(i, 0, ele.length, 50, 255);
-      final float blue = map(i, 0, ele.length, 255, 0);
-      
-      push();
-      fill(30, greem, blue, alpha);
-      translate(0, 0, z);
-      
-      float amp = ele[i];
-      sum[i] += (amp - sum[i]) * smoothing;
-
-      float y =max(-height, 10* (float) Math.log(sum[i]/height)*vScale);
-      
-
-      rect(scaledBins[i], yStart, w, -y-height);
-      pop();
-    }
-    z += 50;
-  }
-   
 }
 
 void showEQ(){
@@ -259,4 +247,35 @@ private void loadSong() {
       file.play();
     }
   }
+}
+
+void drawSpectrogram(){
+  final float yStart = height * 0.99f;
+  
+  int z = 0;
+  float alpha = 255;
+  int eleNum = 0;
+  for (float[] ele : data) {
+    eleNum++;
+    alpha = map(eleNum, 0, data.size(), 255, 0);
+
+    for (int i = 0; i < ele.length; i++) {
+      final float greem = map(i, 0, ele.length, 50, 255);
+      final float blue = map(i, 0, ele.length, 255, 0);
+      
+      push();
+      fill(40, greem, blue, alpha);
+      translate(0, 0, z);
+      
+      float amp = ele[i];
+      sum[i] += (amp - sum[i]) * smoothing;
+
+      float y =max(-height, 10* (float) Math.log(sum[i]/height)*vScale);
+      
+
+      rect(scaledBins[i], yStart, w, -y-height);
+      pop();
+    }
+    z += 50;
+  } 
 }
