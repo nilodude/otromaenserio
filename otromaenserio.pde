@@ -5,7 +5,7 @@ import java.util.*;
 SoundFile file;
 AudioIn in;
 FFT fft;
- 
+
 String songDir = "D:/MUSICA/LIBRERIAS/tracklists";
 List<String> songs = new ArrayList<>();
 int cols, rows;
@@ -23,13 +23,11 @@ int volume = 99;
 
 /*
   para valores de "smoothing" mayores que 0.5 hay mas "ruido", y puede venir bien para "tirar encima un trapo" y que tenga mas "sitios de apoyo".
-  el trapo es una malla de vertices 
-  
-  para valores menores que 0.48 (default), y cercanos a 0.1, se parece mas a un EQ, el "terreno es mas planito", hay menos "ruido"
-
-
-*/
-float smoothing = 0.48;
+ el trapo es una malla de vertices
+ 
+ para valores menores que 0.35 (default), y cercanos a 0.1, se parece mas a un EQ, el "terreno es mas planito", hay menos "ruido"
+ */
+float smoothing = 0.35;
 
 float maxLogBin = 0;
 float minLogBin = 9999;
@@ -56,61 +54,58 @@ void setup() {
   background(150);
 
   readSongDir();
-  
+
   fft= new FFT(this, bands);
   loadSongFile();
-  
+
   setupDisplay();
 }
 
 void draw() {
   background(0);
-  
+
   renderCamera();
-  
+
   readFFT();
-  
+
   //showMouse();
   showGridHelper();
- //drawEQ();
-  
+  //drawEQ();
+
   drawSpectrogram();
-  
 }
 
-void renderCamera(){
- 
-  
+void renderCamera() {
+
   wiggle1 = 150*sin(angle+0.0001*millis());
-    wiggle2 = 200*sin(0.5*angle+0.0001*millis());
+  wiggle2 = 200*sin(0.5*angle+0.0001*millis());
+  angle-=0.01;
 
- //          camera position                                                                                camera looking at
- //     eyex,       eyeY,                               eyeZ,                                          centerX,centerY,centerZ,                   upX, upY, upZ
-   camera(wiggle2+cameraX+width/2.0,height/2.+ wiggle1 - cameraY, 12*mouseY+(height/2.0) / tan(PI*30.0 / 180.0),wiggle2+ width/2.0, height, -500, 0, 1, 0);
-   
-   angle-=0.01;
- 
+  if (presUP) {
+    cameraZ+=10;
+  }
+  if (presDOWN) {
+    cameraZ-=10;
+  }
+  if (presLEFT) {
+    cameraX-=20;
+  }
+  if (presRIGHT) {
+    cameraX+=20;
+  }
+
+  float posX = cameraX + wiggle2+width/2.0;
+  float posY = 3*mouseY + wiggle1  -height/2.0;
+  float posZ = - cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
+  float lookX = wiggle2+ width/2.0;
+  float lookY = height;
+  float lookZ = -500;
   
-   if(presUP){
-    cameraY+=10;
-  }
-  if(presDOWN){
-    cameraY-=10;
-  }
-  if(presLEFT){
-    cameraX-=10;
-  }
-  if(presRIGHT){
-    cameraX+=10;
-  }
-   
-  //println("UP:....PRESS= "+presUP+", RELEASE= "+relUP+"     ");
-  //println("DOWN:..PRESS= "+presDOWN+", RELEASE= "+relDOWN+"     ");
-  //println("LEFT:..PRESS= "+presLEFT+", RELEASE= "+relLEFT+"     ");
-  //println("RIGHT:.PRESS= "+presRIGHT+", RELEASE= "+relRIGHT+"     ");
+  camera(posX,posY,posZ,lookX,lookY,lookZ, 0, 1, 0);
+  
 }
 
-void readFFT(){
+void readFFT() {
   if (file.isPlaying()) {
     fft.analyze(spectrum);
     final float[] clone = spectrum.clone();
@@ -122,13 +117,12 @@ void readFFT(){
   if (data.size() > maxEle) {
     data.clear();
   }
-
 }
 
-void drawEQ(){
+void drawEQ() {
   stroke(0);
   for (int i = 0; i < bands; i++) {
-    
+
     float amp = spectrum[i];
     sum[i] += (amp - sum[i]) * smoothing;
 
@@ -141,7 +135,7 @@ void drawEQ(){
     // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
 
     rect(scaledBins[i], height, w, -y-height);
-  } 
+  }
 }
 
 void setupDisplay() {
@@ -150,7 +144,7 @@ void setupDisplay() {
 
   for (int i=0; i<bands; i++) {
     float temp = (i+1)*binWidth;
-   if (temp < 20000) {
+    if (temp < 20000) {
       logBins[i]= (float) Math.log10(temp);
 
       if (maxLogBin < logBins[i]) {
@@ -232,17 +226,32 @@ public void mouseWheel(MouseEvent event) {
 
 public void keyPressed(KeyEvent event) {
   //CAMERA CONTROLS
-  
-  presUP = event.getKeyCode() == 87;
-  presDOWN = event.getKeyCode() == 83;
-  presRIGHT = event.getKeyCode() == 68;
-  presLEFT = event.getKeyCode() == 65;
-  
-  relUP = presUP && !relUP;
-  relDOWN = presDOWN && !relDOWN;
-  relRIGHT = presRIGHT && !relRIGHT;
-  relLEFT = presLEFT && !relLEFT;
-  
+  if (event.getKeyCode() == 87) {
+    relUP = false;
+    presUP = true;
+  }
+  if (event.getKeyCode() == 83) {
+    relDOWN =false;
+    presDOWN = true;
+  }
+  if (event.getKeyCode() == 68) { 
+    relRIGHT = false;
+    presRIGHT = true;
+  }
+  if (event.getKeyCode() == 65) {
+    relLEFT = false;
+    presLEFT = true;
+  }
+  //presUP = event.getKeyCode() == 87;
+  //presDOWN = event.getKeyCode() == 83;
+  //presRIGHT = event.getKeyCode() == 68;
+  //presLEFT = event.getKeyCode() == 65;
+
+  //relUP = presUP && !relUP;
+  //relDOWN = presDOWN && !relDOWN;
+  //relRIGHT = presRIGHT && !relRIGHT;
+  //relLEFT = presLEFT && !relLEFT;
+
   if (event.getKeyCode() == '1') {
     file.stop();
     file.removeFromCache();
@@ -258,46 +267,62 @@ public void keyPressed(KeyEvent event) {
   }
 }
 
-public void keyReleased(KeyEvent event){
-  relUP = event.getKeyCode() == 87;
-  relDOWN = event.getKeyCode() == 83;
-  relRIGHT = event.getKeyCode() == 68;
-  relLEFT = event.getKeyCode() == 65;
+public void keyReleased(KeyEvent event) {
+  if (event.getKeyCode() == 87) {
+    relUP = true;
+    presUP = false;
+  }
+  if (event.getKeyCode() == 83) {
+    relDOWN =true;
+    presDOWN = false;
+  }
+  if (event.getKeyCode() == 68) { 
+    relRIGHT = true;
+    presRIGHT = false;
+  }
+  if (event.getKeyCode() == 65) {
+    relLEFT = true;
+    presLEFT = false;
+  }
   
-  presUP = relUP && !presUP;
-  presDOWN = relDOWN && !presDOWN;
-  presRIGHT = relRIGHT && !presRIGHT;
-  presLEFT = relLEFT && !presLEFT;
-  
+  //relUP = event.getKeyCode() == 87;
+  //relDOWN = event.getKeyCode() == 83;
+  //relRIGHT = event.getKeyCode() == 68;
+  //relLEFT = event.getKeyCode() == 65;
+
+  //presUP = relUP && !presUP;
+  //presDOWN = relDOWN && !presDOWN;
+  //presRIGHT = relRIGHT && !presRIGHT;
+  //presLEFT = relLEFT && !presLEFT;
 }
 
 private void setVolume() {
   file.amp(volume / 100.0f);
 }
 
-private void changeSongFile(){
+private void changeSongFile() {
   loadSongFile();
   if (!file.isPlaying()) {
-      file.play();
+    file.play();
   }
 }
 
 private void loadSongFile() {
-  try{
-    
-  file = new SoundFile(this, randomSong());
-  if (file != null) {
-    file.amp(volume / 100f);
-    fft.input(file);
+  try {
+    file = new SoundFile(this, randomSong());
+    if (file != null) {
+      file.amp(volume / 100f);
+      fft.input(file);
+    }
   }
-  }catch(Exception e){
-    loadSongFile();  
+  catch(Exception e) {
+    loadSongFile();
   }
 }
 
-void drawSpectrogram(){
+void drawSpectrogram() {
   final float yStart = height * 0.99f;
-  
+
   int z = 0;
   float alpha = 255;
   int eleNum = 0;
@@ -309,20 +334,20 @@ void drawSpectrogram(){
       final float red = map(i, 0, ele.length, 0, 10);
       final float greem = map(i, 0, ele.length, 0, 255);
       final float blue = map(i, 0, ele.length, 255, 0);
-      
+
       push();
       fill(red, greem, blue, alpha);
       translate(0, 0, (0.2*eleNum+1)*z);
-      
+
       float amp = ele[i];
       sum[i] += (amp - sum[i]) * smoothing;
 
       float y =max(-height, 10* (float) Math.log(sum[i]/height)*vScale);
-      
+
 
       rect(scaledBins[i], yStart, w, -y-height);
       pop();
     }
     z += 8;
-  } 
+  }
 }
