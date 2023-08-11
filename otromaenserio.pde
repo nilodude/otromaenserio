@@ -20,11 +20,13 @@ ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 final static int vScale = 8;
 int volume = 100;
-float smoothing = 0.33;
+float smoothing = 0.48;
 float maxLogBin = 0;
 float minLogBin = 9999;
 int myWidth = width +500;
 int myHeight = height +200;
+
+float angle = 0;
 
 void setup() {
   size(displayWidth, displayHeight, P3D);
@@ -42,10 +44,12 @@ void setup() {
 }
 
 void draw() {
-  //          camera position                                          camera looking at
-  //     eyex,       eyeY,             eyeZ,                        centerX,centerY,centerZ,       upX, upY, upZ
-  camera(width/2.0, height/2. - 500, 2000+(height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height, -500, 0, 1, 0);
-
+  float wiggle = 20*sin(angle*2+PI/100);
+  
+  //          camera position                                                          camera looking at
+  //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
+  camera(width/2.0,wiggle+ height/2. -5*mouseY, 2000+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
+  angle+=PI/100;
   if (file.isPlaying()) {
     fft.analyze(spectrum);
     final float[] clone = spectrum.clone();
@@ -61,26 +65,62 @@ void draw() {
   background(0);
   //showMouse();
   showGridHelper();
+  //showEQ();
+  
+  
+  int widthPercent = 90;
 
+  final float spectrumWidth = width / 100.0f * widthPercent;
+  float spectrumEleWidth = spectrumWidth / bands;
+  float xStart = (width - spectrumWidth) / 2;
+  final float yStart = height * 0.95f;
+  
+  int z = 0;
+  float alpha = 255;
+  int eleNum = 0;
+  for (float[] ele : data) {
+    eleNum++;
+    alpha = map(eleNum, 0, data.size(), 255, 0);
 
-  //lo siguiente es almacenar cada iteracion del spectrum en un arrayDeque y hacer que se desplaze hacia abajo
-  //las muestras antiguas y que se vaya mostrando arriba del todo la nueva muestra (iteracion actual) de spectrum
+    for (int i = 0; i < ele.length; i++) {
+      final float greem = map(i, 0, ele.length, 50, 255);
+      final float blue = map(i, 0, ele.length, 255, 0);
+      
+      push();
+      fill(30, greem, blue, alpha);
+      translate(0, 0, z);
+      
+      float amp = ele[i];
+      sum[i] += (amp - sum[i]) * smoothing;
 
+      float y =max(-height, 10* (float) Math.log(sum[i]/height)*vScale);
+      
+
+      rect(scaledBins[i], yStart, spectrumEleWidth, -y-height);
+      pop();
+    }
+    z += 50;
+  }
+  
+}
+
+void showEQ(){
   stroke(0);
   for (int i = 0; i < bands; i++) {
+    
     float amp = spectrum[i];
     sum[i] += (amp - sum[i]) * smoothing;
-    //float y =  min(height,sum[i] * height *vScale);
-    float y =10* (float) Math.log(sum[i]/height)*vScale;
+
+    float y =max(-height, 10* (float) Math.log(sum[i]/height)*vScale);
     stroke(130, 255, 0);
-    //line(i*w + w/2, height, i*w + w/2, height - y );
+    line(scaledBins[i] + w/2, height, scaledBins[i] + w/2, height - y );
 
     stroke(255, 255/(i+1), i);
     fill(0, 0, 0, 0);
     // jugando con "height-y" , "height + y", "height", "y", se consiguen efectos guapos
 
     rect(scaledBins[i], height, w, -y-height);
-  }
+  } 
 }
 
 void setupDisplay() {
@@ -118,6 +158,7 @@ void mouseClicked() {
   if (!file.isPlaying()) {
     file.play();
   } else {
+    
     file.pause();
   }
 }
@@ -173,6 +214,7 @@ public void keyPressed(KeyEvent event) {
   if (event.getKeyCode() == '1') {
     file.stop();
     file.removeFromCache();
+    
     loadSong();
   }
   if (event.getKeyCode() == 38 && smoothing<0.8) {
