@@ -18,8 +18,8 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-int vScale = 14;
-int volume = 50;
+int vScale = 13;
+int volume = 70;
 float stretch =1;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
@@ -175,13 +175,13 @@ void mouseClicked() {
 }
 
 void showGridHelper() {
-  beginShape();
+  push();
   fill(0, 255, 0);
   stroke(0, 255, 0);
   line(0, 0, 0, 0, 0, 2000);
   line(0, 0, 0, 0, height, 0);
   line(0, 0, 0, width, 0, 0);
-  endShape();
+  pop();
 }
 
 void showMouse() {
@@ -314,19 +314,16 @@ void drawSpectrogram() {
   final float yStart = height * 0.99f;
 
   int z = 0;
-  float alpha = 255;
   int eleNum = 0;
   for (float[] ele : data) {
     eleNum++;
-    alpha = map(eleNum, 0, data.size(), 255, 0);
-
     for (int i = 0; i < ele.length; i++) {
-      final float red = map(i, 0, ele.length, 0, 10);
-      final float greem = map(i, 0, ele.length, 0, 255);
-      final float blue = map(i, 0, ele.length, 255, 0);
+      final float red = map(i, 0, ele.length, 255, 0);
+      final float greem = map(i, 0, ele.length, 0, 0);
+      final float blue = map(i, 0, ele.length, 255,0);
 
       push();
-      fill(red, greem, blue, alpha);
+      fill(red, greem, blue, 255-0.07*z);
       translate(0, 0, (0.2*eleNum+1)*z);
 
       float amp = ele[i];
@@ -338,6 +335,6 @@ void drawSpectrogram() {
       rect(stretch*scaledBins[i], yStart, w, -y-height);
       pop();
     }
-    z += 8;
+    z += 5;
   }
 }
