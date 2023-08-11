@@ -18,8 +18,11 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-final static int vScale = 5;
+int vScale = 13;
 int volume = 99;
+
+//a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
+
 
 /*
   para valores de "smoothing" mayores que 0.5 hay mas "ruido", y puede venir bien para "tirar encima un trapo" y que tenga mas "sitios de apoyo".
@@ -242,16 +245,14 @@ public void keyPressed(KeyEvent event) {
     relLEFT = false;
     presLEFT = true;
   }
-  //presUP = event.getKeyCode() == 87;
-  //presDOWN = event.getKeyCode() == 83;
-  //presRIGHT = event.getKeyCode() == 68;
-  //presLEFT = event.getKeyCode() == 65;
-
-  //relUP = presUP && !relUP;
-  //relDOWN = presDOWN && !relDOWN;
-  //relRIGHT = presRIGHT && !relRIGHT;
-  //relLEFT = presLEFT && !relLEFT;
-
+  if (event.getKeyCode() == 84) {
+    vScale++;
+    println(vScale);
+  }
+  if (event.getKeyCode() == 71) {
+    vScale--;
+    println(vScale);
+  }
   if (event.getKeyCode() == '1') {
     file.stop();
     file.removeFromCache();
@@ -285,15 +286,6 @@ public void keyReleased(KeyEvent event) {
     presLEFT = false;
   }
   
-  //relUP = event.getKeyCode() == 87;
-  //relDOWN = event.getKeyCode() == 83;
-  //relRIGHT = event.getKeyCode() == 68;
-  //relLEFT = event.getKeyCode() == 65;
-
-  //presUP = relUP && !presUP;
-  //presDOWN = relDOWN && !presDOWN;
-  //presRIGHT = relRIGHT && !presRIGHT;
-  //presLEFT = relLEFT && !presLEFT;
 }
 
 private void setVolume() {
