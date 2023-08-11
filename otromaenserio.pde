@@ -9,7 +9,7 @@ FFT fft;
 String songDir = "D:/MUSICA/LIBRERIAS/tracklists";
 List<String> songs = new ArrayList<>();
 int cols, rows;
-int bands = 512;
+int bands = 256;
 float w;
 float[] spectrum = new float[bands];
 float[] sum = new float[bands];
@@ -18,8 +18,8 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-final static int vScale = 8;
-int volume = 100;
+final static int vScale = 11;
+int volume = 99;
 
 /*
   para valores de "smoothing" mayores que 0.5 hay mas "ruido", y puede venir bien para "tirar encima un trapo" y que tenga mas "sitios de apoyo".
@@ -80,7 +80,19 @@ void draw() {
   
   drawSpectrogram();
   
-  if(presUP){
+}
+
+void renderCamera(){
+   wiggle = 2000*sin(angle*PI/200);
+  
+ //          camera position                                                          camera looking at
+ //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
+   camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 12*mouseY+(height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height, -500, 0, 1, 0);
+   
+   if(angle >= 2*PI){
+     angle+=PI/100;
+   }
+   if(presUP){
     cameraY+=10;
   }
   if(presDOWN){
@@ -97,15 +109,6 @@ void draw() {
   //println("DOWN:..PRESS= "+presDOWN+", RELEASE= "+relDOWN+"     ");
   //println("LEFT:..PRESS= "+presLEFT+", RELEASE= "+relLEFT+"     ");
   //println("RIGHT:.PRESS= "+presRIGHT+", RELEASE= "+relRIGHT+"     ");
-}
-
-void renderCamera(){
-   wiggle = 20*sin(angle*2+PI/100);
-  
- //          camera position                                                          camera looking at
- //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
-   camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 5*mouseY+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
-   angle+=PI/100; 
 }
 
 void readFFT(){
@@ -245,8 +248,7 @@ public void keyPressed(KeyEvent event) {
   if (event.getKeyCode() == '1') {
     file.stop();
     file.removeFromCache();
-    
-    loadSong();
+    changeSongFile();
   }
   if (event.getKeyCode() == 38 && smoothing<0.8) {
     smoothing+= 0.030;
@@ -259,23 +261,6 @@ public void keyPressed(KeyEvent event) {
 }
 
 public void keyReleased(KeyEvent event){
-  //if (event.getKeyCode() == 87) {
-  //  relUP = true;
-  //  presUP = false;
-  //}
-  //if (event.getKeyCode() == 83) {
-  //  relDOWN =true;
-  //  presDOWN = false;
-  //}
-  //if (event.getKeyCode() == 68) { 
-  //  relRIGHT = true;
-  //  presRIGHT = false;
-  //}
-  //if (event.getKeyCode() == 65) {
-  //  relLEFT = true;
-  //  presLEFT = false;
-  //}
-  
   relUP = event.getKeyCode() == 87;
   relDOWN = event.getKeyCode() == 83;
   relRIGHT = event.getKeyCode() == 68;
@@ -292,14 +277,18 @@ private void setVolume() {
   file.amp(volume / 100.0f);
 }
 
-private void loadSong() {
+private void changeSongFile(){
+  loadSongFile();
+  if (!file.isPlaying()) {
+      file.play();
+  }
+}
+
+private void loadSongFile() {
   file = new SoundFile(this, randomSong());
   if (file != null) {
     file.amp(volume / 100f);
     fft.input(file);
-    if (!file.isPlaying()) {
-      file.play();
-    }
   }
 }
 
@@ -314,13 +303,13 @@ void drawSpectrogram(){
     alpha = map(eleNum, 0, data.size(), 255, 0);
 
     for (int i = 0; i < ele.length; i++) {
-      final float red = map(i, 0, ele.length, 0, 255);
+      final float red = map(i, 0, ele.length, 0, 10);
       final float greem = map(i, 0, ele.length, 0, 255);
       final float blue = map(i, 0, ele.length, 255, 0);
       
       push();
-      fill(0, greem, blue, alpha);
-      translate(0, 0, z);
+      fill(red, greem, blue, alpha);
+      translate(0, 0, (0.2*eleNum+1)*z);
       
       float amp = ele[i];
       sum[i] += (amp - sum[i]) * smoothing;
@@ -331,6 +320,6 @@ void drawSpectrogram(){
       rect(scaledBins[i], yStart, w, -y-height);
       pop();
     }
-    z += 50;
+    z += 20;
   } 
 }
