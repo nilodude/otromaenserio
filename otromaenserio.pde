@@ -19,7 +19,7 @@ float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 int vScale = 13;
-int volume = 70;
+int volume = 99;
 float stretch =1.6;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
@@ -70,7 +70,9 @@ void draw() {
   showGridHelper();
   //drawEQ();
 
-  drawSpectrogram();
+  //drawSpectrogram();
+  //drawTerrain(TRIANGLE_STRIP);
+  drawTerrain(QUAD_STRIP);
 }
 
 void renderCamera() {
@@ -295,6 +297,37 @@ private void loadSongFile() {
     loadSongFile();
   }
 }
+void drawTerrain(int mode) {
+  int z = 0;
+  int eleNum = 0;
+  for (float[] ele : data) {
+    eleNum++;
+    beginShape(mode);
+    push();
+    for (int i = 0; i < ele.length; i++) {
+      final float red = 255-3*i;
+      final float greem = 190-8*i;
+      final float blue = 4*i;
+
+      fill(red, greem, blue, /*255-0.1**/z);
+      translate(0, 0, z);
+
+      float amp = ele[i];
+      sum[i] += (amp - sum[i]) * smoothing;
+
+      float y =vScale*10* (float) Math.log(sum[i]/height);
+      
+      if(stretch*scaledBins[i]>=0){
+        vertex(stretch*scaledBins[i], -y,z);
+        vertex(stretch*scaledBins[i], -y,z+100);
+      }
+    }
+    pop();
+    endShape();
+    z += 100;
+  }
+}
+
 
 void drawSpectrogram() {
   final float yStart = height * 0.99f;
