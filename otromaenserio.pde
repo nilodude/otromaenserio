@@ -28,6 +28,10 @@ int myHeight = height +200;
 
 float angle = 0;
 
+float cameraX=0;
+float cameraY=0;
+float cameraZ=0;
+
 void setup() {
   size(displayWidth, displayHeight, P3D);
   background(150);
@@ -48,7 +52,7 @@ void draw() {
   
   //          camera position                                                          camera looking at
   //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
-  camera(width/2.0,wiggle+ height/2. -5*mouseY, 2000+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
+  camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 2000+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
   angle+=PI/100;
   if (file.isPlaying()) {
     fft.analyze(spectrum);
@@ -68,11 +72,11 @@ void draw() {
   //showEQ();
   
   
-  int widthPercent = 90;
+  //int widthPercent = 90;
 
-  final float spectrumWidth = width / 100.0f * widthPercent;
-  float spectrumEleWidth = spectrumWidth / bands;
-  float xStart = (width - spectrumWidth) / 2;
+  //final float spectrumWidth = width / 100.0f * widthPercent;
+  //float spectrumEleWidth = spectrumWidth / bands;
+  //float xStart = (width - spectrumWidth) / 2;
   final float yStart = height * 0.95f;
   
   int z = 0;
@@ -96,12 +100,12 @@ void draw() {
       float y =max(-height, 10* (float) Math.log(sum[i]/height)*vScale);
       
 
-      rect(scaledBins[i], yStart, spectrumEleWidth, -y-height);
+      rect(scaledBins[i], yStart, w, -y-height);
       pop();
     }
     z += 50;
   }
-  
+   
 }
 
 void showEQ(){
@@ -211,6 +215,21 @@ public void mouseWheel(MouseEvent event) {
 }
 
 public void keyPressed(KeyEvent event) {
+  //CAMERA CONTROLS
+  if (event.getKeyCode() == 87) {
+   cameraY+=30;
+  }
+  if (event.getKeyCode() == 83) {
+   cameraY-=30;
+  }
+  if (event.getKeyCode() == 68) {
+   cameraX+=30;
+  }
+  if (event.getKeyCode() == 65) {
+   cameraX-=30;
+  }
+  
+  
   if (event.getKeyCode() == '1') {
     file.stop();
     file.removeFromCache();
