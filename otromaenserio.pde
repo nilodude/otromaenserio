@@ -9,7 +9,7 @@ FFT fft;
 String songDir = "D:/MUSICA/LIBRERIAS/tracklists/anu27";
 List<String> songs = new ArrayList<>();
 int cols, rows;
-int bands = 256;
+int bands = 512;
 float w;
 float[] spectrum = new float[bands];
 float[] sum = new float[bands];
@@ -18,9 +18,9 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-int vScale = 13;
+int vScale = 14;
 int volume = 99;
-
+float stretch =1;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
 
@@ -28,9 +28,9 @@ int volume = 99;
   para valores de "smoothing" mayores que 0.5 hay mas "ruido", y puede venir bien para "tirar encima un trapo" y que tenga mas "sitios de apoyo".
  el trapo es una malla de vertices
  
- para valores menores que 0.35 (default), y cercanos a 0.1, se parece mas a un EQ, el "terreno es mas planito", hay menos "ruido"
+ para valores menores que 0.4 (default), y cercanos a 0.1, se parece mas a un EQ, el "terreno es mas planito", hay menos "ruido"
  */
-float smoothing = 0.35;
+float smoothing = 0.4;
 
 float maxLogBin = 0;
 float minLogBin = 9999;
@@ -46,11 +46,6 @@ boolean presUP = false;
 boolean presDOWN = false;
 boolean presLEFT = false;
 boolean presRIGHT = false;
-
-boolean relUP = false;
-boolean relDOWN = false;
-boolean relLEFT = false;
-boolean relRIGHT = false;
 
 void setup() {
   size(displayWidth, displayHeight, P3D);
@@ -91,16 +86,16 @@ void renderCamera() {
     cameraZ-=10;
   }
   if (presLEFT) {
-    cameraX-=20;
+    cameraX-=10;
   }
   if (presRIGHT) {
-    cameraX+=20;
+    cameraX+=10;
   }
 
   float posX = cameraX + wiggle2+width/2.0;
   float posY = 3*mouseY + wiggle1  -height/2.0;
   float posZ = 5000- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
-  float lookX = wiggle2+ width/2.0;
+  float lookX = 200*stretch+wiggle2+ width/2.0;
   float lookY = height-200;
   float lookZ = -500;
   
@@ -215,34 +210,41 @@ String randomSong() {
 }
 
 public void mouseWheel(MouseEvent event) {
+  stretch+=0.2;
   final int count = event.getCount();
-  volume -= count;
-  if (volume > 100) {
-    volume = 100;
+  stretch -= count;
+  //if (stretch > 20) {
+  //  stretch = 99;
+  //}
+  if (stretch < 1) {
+    stretch = 1;
   }
-  if (volume < 0) {
-    volume = 0;
-  }
-  println(volume);
-  setVolume();
+  println(stretch);
+  
+  //final int count = event.getCount();
+  //volume -= count;
+  //if (volume > 99) {
+  //  volume = 99;
+  //}
+  //if (volume < 0) {
+  //  volume = 0;
+  //}
+  //println(volume);
+  //setVolume();
 }
 
 public void keyPressed(KeyEvent event) {
   //CAMERA CONTROLS
   if (event.getKeyCode() == 87) {
-    relUP = false;
     presUP = true;
   }
   if (event.getKeyCode() == 83) {
-    relDOWN =false;
     presDOWN = true;
   }
   if (event.getKeyCode() == 68) { 
-    relRIGHT = false;
     presRIGHT = true;
   }
   if (event.getKeyCode() == 65) {
-    relLEFT = false;
     presLEFT = true;
   }
   if (event.getKeyCode() == 84) {
@@ -270,19 +272,15 @@ public void keyPressed(KeyEvent event) {
 
 public void keyReleased(KeyEvent event) {
   if (event.getKeyCode() == 87) {
-    relUP = true;
     presUP = false;
   }
   if (event.getKeyCode() == 83) {
-    relDOWN =true;
     presDOWN = false;
   }
   if (event.getKeyCode() == 68) { 
-    relRIGHT = true;
     presRIGHT = false;
   }
   if (event.getKeyCode() == 65) {
-    relLEFT = true;
     presLEFT = false;
   }
   
@@ -334,10 +332,10 @@ void drawSpectrogram() {
       float amp = ele[i];
       sum[i] += (amp - sum[i]) * smoothing;
 
-      float y =max(-height, 10* (float) Math.log(sum[i]/height)*vScale);
+      float y =max(-height, vScale*10* (float) Math.log(sum[i]/height));
 
 
-      rect(scaledBins[i], yStart, w, -y-height);
+      rect(stretch*scaledBins[i], yStart, w, -y-height);
       pop();
     }
     z += 8;
