@@ -76,7 +76,7 @@ void draw() {
   
   //showMouse();
   showGridHelper();
-  showEQ();
+ //drawEQ();
   
   drawSpectrogram();
   
@@ -93,10 +93,10 @@ void draw() {
     cameraX+=30;
   }
    
-  println("UP:....PRESS= "+presUP+", RELEASE= "+relUP+"     ");
-  println("DOWN:..PRESS= "+presDOWN+", RELEASE= "+relDOWN+"     ");
-  println("LEFT:..PRESS= "+presLEFT+", RELEASE= "+relLEFT+"     ");
-  println("RIGHT:.PRESS= "+presRIGHT+", RELEASE= "+relRIGHT+"     ");
+  //println("UP:....PRESS= "+presUP+", RELEASE= "+relUP+"     ");
+  //println("DOWN:..PRESS= "+presDOWN+", RELEASE= "+relDOWN+"     ");
+  //println("LEFT:..PRESS= "+presLEFT+", RELEASE= "+relLEFT+"     ");
+  //println("RIGHT:.PRESS= "+presRIGHT+", RELEASE= "+relRIGHT+"     ");
 }
 
 void renderCamera(){
@@ -104,7 +104,7 @@ void renderCamera(){
   
  //          camera position                                                          camera looking at
  //     eyex,       eyeY,                               eyeZ,                        centerX,centerY,centerZ,             upX, upY, upZ
-   camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 2000+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
+   camera(cameraX+width/2.0,wiggle+ height/2. -5*cameraY, 5*mouseY+(height/2.0) / tan(PI*30.0 / 180.0), wiggle+width/2.0, height, -500, 0, 1, 0);
    angle+=PI/100; 
 }
 
@@ -123,7 +123,7 @@ void readFFT(){
 
 }
 
-void showEQ(){
+void drawEQ(){
   stroke(0);
   for (int i = 0; i < bands; i++) {
     
@@ -314,11 +314,12 @@ void drawSpectrogram(){
     alpha = map(eleNum, 0, data.size(), 255, 0);
 
     for (int i = 0; i < ele.length; i++) {
-      final float greem = map(i, 0, ele.length, 50, 255);
+      final float red = map(i, 0, ele.length, 0, 255);
+      final float greem = map(i, 0, ele.length, 0, 255);
       final float blue = map(i, 0, ele.length, 255, 0);
       
       push();
-      fill(40, greem, blue, alpha);
+      fill(0, greem, blue, alpha);
       translate(0, 0, z);
       
       float amp = ele[i];
