@@ -19,7 +19,7 @@ float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
 int vScale = 14;
-int volume = 99;
+int volume = 50;
 float stretch =1;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
@@ -80,22 +80,22 @@ void renderCamera() {
   angle-=0.01;
 
   if (presUP) {
-    cameraZ+=10;
+    cameraZ+=20;
   }
   if (presDOWN) {
-    cameraZ-=10;
+    cameraZ-=20;
   }
   if (presLEFT) {
-    cameraX-=10;
+    cameraX-=20;
   }
   if (presRIGHT) {
-    cameraX+=10;
+    cameraX+=20;
   }
 
   float posX = cameraX + wiggle2+width/2.0;
   float posY = 3*mouseY + wiggle1  -height/2.0;
   float posZ = 5000- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
-  float lookX = 200*stretch+wiggle2+ width/2.0;
+  float lookX = mouseX*stretch+wiggle2+ width/2.0;
   float lookY = height-200;
   float lookZ = -500;
   
