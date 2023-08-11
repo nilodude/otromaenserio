@@ -6,7 +6,7 @@ SoundFile file;
 AudioIn in;
 FFT fft;
 
-String songDir = "D:/MUSICA/LIBRERIAS/tracklists";
+String songDir = "D:/MUSICA/LIBRERIAS/tracklists/anu27";
 List<String> songs = new ArrayList<>();
 int cols, rows;
 int bands = 256;
@@ -18,7 +18,7 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 final int maxEle = 100;
-final static int vScale = 11;
+final static int vScale = 5;
 int volume = 99;
 
 /*
@@ -96,9 +96,9 @@ void renderCamera() {
 
   float posX = cameraX + wiggle2+width/2.0;
   float posY = 3*mouseY + wiggle1  -height/2.0;
-  float posZ = - cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
+  float posZ = 5000- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
   float lookX = wiggle2+ width/2.0;
-  float lookY = height;
+  float lookY = height-200;
   float lookZ = -500;
   
   camera(posX,posY,posZ,lookX,lookY,lookZ, 0, 1, 0);
