@@ -21,6 +21,7 @@ final int maxEle = 100;
 int vScale = 13;
 int volume = 99;
 float stretch =1.6;
+int zStart = 7000;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
 
@@ -318,13 +319,14 @@ void drawTerrain(int mode) {
       float y =vScale*10* (float) Math.log(sum[i]/height);
       
       if(stretch*scaledBins[i]>=0){
-        vertex(stretch*scaledBins[i], -y,z);
-        vertex(stretch*scaledBins[i], -y,z+100);
+        // cuando el factor eleNum (-y*(eleNum)) es demasiado grande, se desplaza casi en vertical y queda bastante guapo
+        vertex(stretch*scaledBins[i], -y+4*eleNum,z);
+        vertex(stretch*scaledBins[i], -y+4*eleNum,z+300);
       }
     }
     pop();
     endShape();
-    z += 100;
+    z += 300;
   }
 }
 
