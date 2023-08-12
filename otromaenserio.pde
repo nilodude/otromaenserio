@@ -17,10 +17,11 @@ float[] logBins = new float[bands];
 float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
+ArrayDeque<float[]> cookedData = new ArrayDeque<>();
 final int maxEle = 100;
 int vScale = 13;
 int volume = 99;
-float stretch =1.6;
+float stretch =2.5;
 int zStart = 7000;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
@@ -69,11 +70,12 @@ void draw() {
 
   //showMouse();
   showGridHelper();
-  //drawEQ();
+  drawEQ();
 
   //drawSpectrogram();
-  //drawTerrain(TRIANGLE_STRIP);
-  drawTerrain(QUAD_STRIP);
+  drawTerrain(TRIANGLE_STRIP);
+  //drawTerrain(QUAD_STRIP);
+  //drawTerrain(LINES);
 }
 
 void renderCamera() {
@@ -110,13 +112,30 @@ void readFFT() {
   if (file.isPlaying()) {
     fft.analyze(spectrum);
     final float[] clone = spectrum.clone();
+    final float[] cookedClone = new float[clone.length];
+    
+    for (int i = 0; i < clone.length; i++) {
+      float amp = clone[i];
+      sum[i] += (amp - sum[i]) * smoothing;
+
+      float y =vScale*10* (float) Math.log(sum[i]/height);
+      
+      cookedClone[i] = y;
+    }
+    cookedData.addFirst(cookedClone);
     data.addFirst(clone);
   }
-  if (data.size() >= maxEle) {
-    data.removeLast();
+  if (cookedData.size() >= maxEle) {
+    cookedData.removeLast();
   }
-  if (data.size() > maxEle) {
-    data.clear();
+  if (cookedData.size() > maxEle) {
+    cookedData.clear();
+  }
+   if (cookedData.size() >= maxEle) {
+    cookedData.removeLast();
+  }
+  if (cookedData.size() > maxEle) {
+    cookedData.clear();
   }
 }
 
@@ -298,34 +317,39 @@ private void loadSongFile() {
     loadSongFile();
   }
 }
+
+
+
+
+
+
 void drawTerrain(int mode) {
   int z = 0;
-  int eleNum = 0;
-  for (float[] ele : data) {
-    eleNum++;
+  int timeFrame = 0;
+  for (float[] row : cookedData) {
+    //eleNum++;
     beginShape(mode);
     push();
-    for (int i = 0; i < ele.length; i++) {
+    for (int i = 0; i < row.length; i++) {
       final float red = 255-3*i;
       final float greem = 190-8*i;
       final float blue = 4*i;
 
       fill(red, greem, blue, /*255-0.1**/z);
       translate(0, 0, z);
-
-      float amp = ele[i];
-      sum[i] += (amp - sum[i]) * smoothing;
-
-      float y =vScale*10* (float) Math.log(sum[i]/height);
       
       if(stretch*scaledBins[i]>=0){
-        // cuando el factor eleNum (-y*(eleNum)) es demasiado grande, se desplaza casi en vertical y queda bastante guapo
-        vertex(stretch*scaledBins[i], -y+4*eleNum,z);
-        vertex(stretch*scaledBins[i], -y+4*eleNum,z+300);
+        // cuando el factor 0*timeFrame (-y*(0*timeFrame)) es demasiado grande, se desplaza casi en vertical y queda bastante guapo
+        vertex(stretch*scaledBins[i], -row[i]+0*timeFrame,z);
+        vertex(stretch*scaledBins[i], -row[i]+2*timeFrame,z+300);
       }
+    }
+    if(stretch*scaledBins[row.length-1]>=0){
+      vertex(stretch*scaledBins[row.length-1],height,z+300);
     }
     pop();
     endShape();
+    timeFrame++;
     z += 300;
   }
 }
