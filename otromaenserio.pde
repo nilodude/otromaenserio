@@ -18,11 +18,11 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 ArrayDeque<float[]> cookedData = new ArrayDeque<>();
-final int maxEle = 100;
-int vScale = 13;
+final int maxEle = 200;
+int vScale = 21;
 int volume = 99;
-float stretch =2.5;
-int zStart = 7000;
+float stretch =3.2;
+int zStart = 6000;
 //a lo mejor cambiando la base del logaritmo se consigue distinta dinamica, ahora mismo se "pasa a dB" con el neperiano
 
 
@@ -40,7 +40,7 @@ float minLogBin = 9999;
 float angle = 0;
 float wiggle1 =0;
 float wiggle2 =0;
-float cameraX=0;
+float cameraX=4200;
 float cameraY=0;
 float cameraZ=0;
 
@@ -70,7 +70,7 @@ void draw() {
 
   //showMouse();
   showGridHelper();
-  drawEQ();
+  //drawEQ();
 
   //drawSpectrogram();
   drawTerrain(TRIANGLE_STRIP);
@@ -99,10 +99,15 @@ void renderCamera() {
 
   float posX = cameraX + wiggle2+width/2.0;
   float posY = 3*mouseY + wiggle1  -height/2.0;
-  float posZ = 5000- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
+  float posZ = zStart- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
   float lookX = mouseX*stretch+wiggle2;
   float lookY = height-200;
   float lookZ = -500;
+  
+  if(presRIGHT){
+    println("position: "+posX+", "+ posY+", "+ posZ);
+  }
+  
   
   camera(posX,posY,posZ,lookX,lookY,lookZ, 0, 1, 0);
   
@@ -326,6 +331,7 @@ private void loadSongFile() {
 void drawTerrain(int mode) {
   int z = 0;
   int timeFrame = 0;
+  int zPlus = 50;
   for (float[] row : cookedData) {
     //eleNum++;
     beginShape(mode);
@@ -335,22 +341,22 @@ void drawTerrain(int mode) {
       final float greem = 190-8*i;
       final float blue = 4*i;
 
-      fill(red, greem, blue, /*255-0.1**/z);
+      fill(red, greem, blue, /*255-0.1**/255);
       translate(0, 0, z);
       
       if(stretch*scaledBins[i]>=0){
         // cuando el factor 0*timeFrame (-y*(0*timeFrame)) es demasiado grande, se desplaza casi en vertical y queda bastante guapo
         vertex(stretch*scaledBins[i], -row[i]+0*timeFrame,z);
-        vertex(stretch*scaledBins[i], -row[i]+2*timeFrame,z+300);
+        vertex(stretch*scaledBins[i], -row[i]+2*timeFrame,z+zPlus);
       }
     }
     if(stretch*scaledBins[row.length-1]>=0){
-      vertex(stretch*scaledBins[row.length-1],height,z+300);
+      vertex(stretch*scaledBins[row.length-1],height,z+zPlus);
     }
     pop();
     endShape();
     timeFrame++;
-    z += 300;
+    z += 1.5*zPlus;
   }
 }
 
