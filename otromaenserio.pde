@@ -18,7 +18,7 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 ArrayDeque<float[]> cookedData = new ArrayDeque<>();
-final int maxEle = 200;
+final int maxEle = 100;
 int vScale = 21;
 int volume = 99;
 float stretch =3.2;
@@ -102,8 +102,8 @@ void renderCamera() {
   float posY = 3*mouseY + wiggle1  -height/2.0;
   float posZ = zStart- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
   float lookX = mouseX*stretch+wiggle2;
-  float lookY = height-200;
-  float lookZ = -100;
+  float lookY = height-200+mouseY;
+  float lookZ = 100;
   
   if(presRIGHT){
     println("position: "+posX+", "+ posY+", "+ posZ);
