@@ -56,8 +56,9 @@ void setup() {
   readSongDir();
 
   fft= new FFT(this, bands);
-  loadSongFile();
-
+  
+  //loadSongFile();
+  setupAudioIn();
   setupDisplay();
 }
 
@@ -102,7 +103,7 @@ void renderCamera() {
   float posZ = zStart- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
   float lookX = mouseX*stretch+wiggle2;
   float lookY = height-200;
-  float lookZ = -500;
+  float lookZ = -100;
   
   if(presRIGHT){
     println("position: "+posX+", "+ posY+", "+ posZ);
@@ -114,7 +115,7 @@ void renderCamera() {
 }
 
 void readFFT() {
-  if (file.isPlaying()) {
+  if (in.isPlaying()) {
     fft.analyze(spectrum);
     final float[] clone = spectrum.clone();
     final float[] cookedClone = new float[clone.length];
@@ -165,8 +166,8 @@ void drawEQ() {
 
 void setupDisplay() {
   w = width / bands;
-  binWidth = file.sampleRate()/bands;
-
+  //binWidth = file.sampleRate()/bands;
+  binWidth = 86;
   for (int i=0; i<bands; i++) {
     float temp = (i+1)*binWidth;
     if (temp < 20000) {
@@ -194,10 +195,10 @@ void setupDisplay() {
 }
 
 void mouseClicked() {
-  if (!file.isPlaying()) {
-    file.play();
+  if (!in.isPlaying()) {
+    in.play();
   } else {
-    file.pause();
+    in.stop();
   }
 }
 
@@ -323,7 +324,20 @@ private void loadSongFile() {
   }
 }
 
-
+private void setupAudioIn() {
+  try {
+    Sound.list();
+    in = new AudioIn(this,0);
+    if (in != null) {
+      in.start();
+      //in.amp(volume / 100f);
+      fft.input(in);
+    }
+  }
+  catch(Exception e) {
+    setupAudioIn();
+  }
+}
 
 
 
@@ -347,13 +361,13 @@ void drawTerrain(int mode) {
       if(stretch*scaledBins[i]>=0){
         // cuando el factor 0*timeFrame (-y*(0*timeFrame)) es demasiado grande, se desplaza casi en vertical y queda bastante guapo
         vertex(stretch*scaledBins[i], -row[i]+0*timeFrame,z);
-        vertex(stretch*scaledBins[i], -row[i]+2*timeFrame,z+zPlus);
+        vertex(stretch*scaledBins[i], -row[i]+8*timeFrame,z+zPlus);
       }
     }
     if(stretch*scaledBins[row.length-1]>=0){
       vertex(stretch*scaledBins[row.length-1],height,z+zPlus);
     }
-    pop();
+     pop();
     endShape();
     timeFrame++;
     z += 1.5*zPlus;
