@@ -18,7 +18,7 @@ float[] scaledBins = new float[bands];
 float binWidth = 0;
 ArrayDeque<float[]> data = new ArrayDeque<>();
 ArrayDeque<float[]> cookedData = new ArrayDeque<>();
-final int maxEle = 100;
+final int maxEle = 200;
 int vScale = 21;
 int volume = 99;
 float stretch =3.2;
@@ -99,7 +99,7 @@ void renderCamera() {
   }
 
   float posX = cameraX + wiggle2+width/2.0;
-  float posY = 3*mouseY + wiggle1  -height/2.0;
+  float posY = 6*mouseY + wiggle1  -height/2.0;
   float posZ = zStart- cameraZ +(height/2.0) / tan(PI*30.0 / 180.0);
   float lookX = mouseX*stretch+wiggle2;
   float lookY = height-200+mouseY;
@@ -276,11 +276,11 @@ public void keyPressed(KeyEvent event) {
   }
   if (event.getKeyCode() == 38 && smoothing<0.8) {
     smoothing+= 0.030;
-    println(smoothing);
+    println("smoothing: "+smoothing);
   }
   if (event.getKeyCode() == 40 && smoothing>=0.05) {
     smoothing-=0.030;
-    println(smoothing);
+    println("smoothing: "+smoothing);
   }
 }
 
@@ -338,8 +338,6 @@ private void setupAudioIn() {
     setupAudioIn();
   }
 }
-
-
 
 
 void drawTerrain(int mode) {
