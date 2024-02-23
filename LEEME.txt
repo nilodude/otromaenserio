@@ -1,2 +1,5 @@
 31/08/23:
 	-it would be great to apply a bandpass filter depending on camera position and orientation
+
+23/02/24:
+	-what if it runs on a springboot app, and a springboot app runs on a docker?
