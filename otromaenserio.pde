@@ -221,6 +221,14 @@ void showMouse() {
   endShape();
 }
 
+void printText(String text) {
+  beginShape();
+  textSize(200);
+  fill(255);
+  text(text, 0, height/3);
+  endShape();
+}
+
 void readSongDir() {
   File[] files = new File(songDir).listFiles();
 
@@ -263,10 +271,12 @@ public void keyPressed(KeyEvent event) {
   }
   if (event.getKeyCode() == 84) {
     vScale--;
+    printText("vScale: "+vScale);
     println("vScale: "+vScale);
   }
   if (event.getKeyCode() == 71) {
     vScale++;
+    printText("vScale: "+vScale);
     println("vScale: "+vScale);
   }
   if (event.getKeyCode() == '1') {
@@ -276,10 +286,12 @@ public void keyPressed(KeyEvent event) {
   }
   if (event.getKeyCode() == 38 && smoothing<0.8) {
     smoothing+= 0.030;
+    printText("smoothing: "+smoothing);
     println("smoothing: "+smoothing);
   }
   if (event.getKeyCode() == 40 && smoothing>=0.05) {
     smoothing-=0.030;
+    printText("smoothing: "+smoothing);
     println("smoothing: "+smoothing);
   }
 }
